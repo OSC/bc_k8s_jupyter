@@ -1,0 +1,5 @@
+---
+cluster: "k8s"
+
+form:
+- foo
