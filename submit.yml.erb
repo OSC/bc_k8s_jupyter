@@ -15,12 +15,25 @@ script:
     container:
       name: "jupyter"
       image: "jupyter/scipy-notebook"
-      command: "/opt/conda/bin/jupyter notebook --config=/ood/ondemand_config.py"
+      command: "/usr/local/bin/start.sh /opt/conda/bin/jupyter notebook --config=/ood/ondemand_config.py"
+      working_dir: "<%= Etc.getpwnam(ENV['USER']).dir %>"
+      restart_policy: 'OnFailure'
+      env:
+      - name: NB_UID
+        value: "<%= Etc.getpwnam(ENV['USER']).uid %>"
+      - name: NB_USER
+        value: "<%= ENV['USER'] %>"
+      - name: NB_GID
+        value: "<%= Etc.getpwnam(ENV['USER']).gid %>"
+      - name: HOME
+        value: "<%= Etc.getpwnam(ENV['USER']).dir %>"
       port: "8080"
+      cpu: "<%= cpu %>"
+      memory: "<%= memory %>Gi"
     configmap:
       filename: "<%= configmap_filename %>"
       data: "<%= configmap_data %>"
-    init_ctrs:
+    init_containers:
     - name: "init-secret"
       image: "jeffohrstrom/ood-k8s-utils:latest"
       command: 

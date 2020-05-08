@@ -1,5 +1,20 @@
 ---
-cluster: "k8s"
+cluster: "k8s_dev"
 
 form:
-- foo
+- cpu
+- memory
+
+attributes:
+  cpu:
+    widget: number_field
+    min: 1
+    max: 5
+    label: "CPUs"
+    required: true
+  memory:
+    widget: number_field
+    min: 1
+    max: 12
+    label: "Memory (GB)"
+    required: true
