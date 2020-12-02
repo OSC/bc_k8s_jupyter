@@ -1,13 +1,10 @@
 <%
    pwd_cfg = "c.NotebookApp.password=u\'sha1:${SALT}:${PASSWORD_SHA1}\'"
    host_port_cfg = "c.NotebookApp.base_url=\'/node/${HOST_CFG}/${PORT_CFG}/\'"
-   log_lvl_cfg = "c.Application.log_level='DEBUG'"
-   ip_cfg = "c.NotebookApp.ip = '*'"
-   xsrf_cfg = "c.NotebookApp.disable_check_xsrf = True"
-   origin_cfg = "c.NotebookApp.allow_origin = '*'"
 
    configmap_filename = "ondemand_config.py"
    configmap_data = "c.NotebookApp.port = 8080"
+   utility_img = "jeffohrstrom/ood-k8s-utils:1.0"
 %>
 ---
 script:
@@ -32,46 +29,27 @@ script:
       memory: "<%= memory %>Gi"
     configmap:
       filename: "<%= configmap_filename %>"
-      data: "<%= configmap_data %>"
+      data: |
+        c.NotebookApp.port = 8080
+        c.NotebookApp.ip = '0.0.0.0'
+        c.NotebookApp.disable_check_xsrf = True
+        c.NotebookApp.allow_origin = '*'
+        c.Application.log_level = 'DEBUG'
     init_containers:
     - name: "init-secret"
-      image: "jeffohrstrom/ood-k8s-utils:latest"
+      image: "<%= utility_img %>"
       command: 
-      - "/bin/save_passwd_as_secret" 
+      - "/bin/save_passwd_as_secret"
       - "<%= ENV['USER'] %>"
     - name: "add-passwd-to-cfg"
-      image: "jeffohrstrom/ood-k8s-utils:latest"
+      image: "<%= utility_img %>"
       command:
       - "/bin/bash"
       - "-c"
       - "source /bin/create_salt_and_sha1; /bin/add_line_to_configmap \\\"<%= pwd_cfg %>\\\" <%= configmap_filename %>"
     - name: "add-hostport-to-cfg"
-      image: "jeffohrstrom/ood-k8s-utils:latest"
+      image: "<%= utility_img %>"
       command:
       - "/bin/bash"
       - "-c"
       - "source /bin/find_host_port; /bin/add_line_to_configmap \\\"<%= host_port_cfg %>\\\" <%= configmap_filename %>"
-    - name: "add-loglvl-to-cfg"
-      image: "jeffohrstrom/ood-k8s-utils:latest"
-      command:
-      - "/bin/add_line_to_configmap"
-      - "<%= log_lvl_cfg %>"
-      - "<%= configmap_filename %>"
-    - name: "add-ip-to-cfg"
-      image: "jeffohrstrom/ood-k8s-utils:latest"
-      command:
-      - "/bin/add_line_to_configmap"
-      - "<%= ip_cfg %>"
-      - "<%= configmap_filename %>"
-    - name: "add-xsrf-to-cfg"
-      image: "jeffohrstrom/ood-k8s-utils:latest"
-      command:
-      - "/bin/add_line_to_configmap"
-      - "<%= xsrf_cfg %>"
-      - "<%= configmap_filename %>"
-    - name: "add-origin-to-cfg"
-      image: "jeffohrstrom/ood-k8s-utils:latest"
-      command:
-      - "/bin/add_line_to_configmap"
-      - "<%= origin_cfg %>"
-      - "<%= configmap_filename %>"
