@@ -4,10 +4,15 @@
 
    configmap_filename = "ondemand_config.py"
    configmap_data = "c.NotebookApp.port = 8080"
-   utility_img = "jeffohrstrom/ood-k8s-utils:1.0"
+   utility_img = "jeffohrstrom/ood-k8s-utils:2.6"
+
+   groups = OodSupport::Process.groups.map(&:name).reject { |group| /^P.+$/.match(group).nil? }
+   account = groups.first if account.nil? || account.eql?("")
 %>
 ---
 script:
+  accounting_id: "<%= account %>"
+  wall_time: "<%= wall_time.to_i * 3600 %>"
   native:
     container:
       name: "jupyter"
@@ -40,13 +45,13 @@ script:
       image: "<%= utility_img %>"
       command: 
       - "/bin/save_passwd_as_secret"
-      - "<%= ENV['USER'] %>"
+      - "user-<%= ENV['USER'] %>"
     - name: "add-passwd-to-cfg"
       image: "<%= utility_img %>"
       command:
       - "/bin/bash"
       - "-c"
-      - "source /bin/create_salt_and_sha1; /bin/add_line_to_configmap \\\"<%= pwd_cfg %>\\\" <%= configmap_filename %>"
+      - "source /bin/passwd_from_secret; source /bin/create_salt_and_sha1; /bin/add_line_to_configmap \\\"<%= pwd_cfg %>\\\" <%= configmap_filename %>"
     - name: "add-hostport-to-cfg"
       image: "<%= utility_img %>"
       command:

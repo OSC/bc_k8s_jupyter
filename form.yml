@@ -1,9 +1,11 @@
 ---
-cluster: "k8s_dev"
+cluster: "kubernetes"
 
 form:
-- cpu
-- memory
+  - account
+  - cpu
+  - memory
+  - wall_time
 
 attributes:
   cpu:
@@ -18,3 +20,8 @@ attributes:
     max: 12
     label: "Memory (GB)"
     required: true
+  wall_time:
+    widget: number_field
+    label: "Hours"
+    min: 1
+    value: 1
