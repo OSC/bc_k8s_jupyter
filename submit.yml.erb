@@ -33,13 +33,14 @@ script:
       cpu: "<%= cpu %>"
       memory: "<%= memory %>Gi"
     configmap:
-      filename: "<%= configmap_filename %>"
-      data: |
-        c.NotebookApp.port = 8080
-        c.NotebookApp.ip = '0.0.0.0'
-        c.NotebookApp.disable_check_xsrf = True
-        c.NotebookApp.allow_origin = '*'
-        c.Application.log_level = 'DEBUG'
+      files:
+        - filename: "<%= configmap_filename %>"
+          data: |
+            c.NotebookApp.port = 8080
+            c.NotebookApp.ip = '0.0.0.0'
+            c.NotebookApp.disable_check_xsrf = True
+            c.NotebookApp.allow_origin = '*'
+            c.Application.log_level = 'DEBUG'
     init_containers:
     - name: "init-secret"
       image: "<%= utility_img %>"
