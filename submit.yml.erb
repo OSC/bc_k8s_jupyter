@@ -21,14 +21,10 @@ script:
       working_dir: "<%= Etc.getpwnam(ENV['USER']).dir %>"
       restart_policy: 'OnFailure'
       env:
-      - name: NB_UID
-        value: "<%= Etc.getpwnam(ENV['USER']).uid %>"
-      - name: NB_USER
-        value: "<%= ENV['USER'] %>"
-      - name: NB_GID
-        value: "<%= Etc.getpwnam(ENV['USER']).gid %>"
-      - name: HOME
-        value: "<%= Etc.getpwnam(ENV['USER']).dir %>"
+        NB_UID: "<%= Etc.getpwnam(ENV['USER']).uid %>"
+        NB_USER: "<%= ENV['USER'] %>"
+        NB_GID: "<%= Etc.getpwnam(ENV['USER']).gid %>"
+        HOME: "<%= Etc.getpwnam(ENV['USER']).dir %>"
       port: "8080"
       cpu: "<%= cpu %>"
       memory: "<%= memory %>Gi"
