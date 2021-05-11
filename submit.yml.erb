@@ -4,7 +4,7 @@
 
    configmap_filename = "ondemand_config.py"
    configmap_data = "c.NotebookApp.port = 8080"
-   utility_img = "jeffohrstrom/ood-k8s-utils:2.6"
+   utility_img = "docker-registry.osc.edu/ondemand/ood-k8s-utils:2.6"
 
    groups = OodSupport::Process.groups.map(&:name).reject { |group| /^P.+$/.match(group).nil? }
    account = groups.first if account.nil? || account.eql?("")
@@ -16,7 +16,7 @@ script:
   native:
     container:
       name: "jupyter"
-      image: "jupyter/scipy-notebook"
+      image: "docker-registry.osc.edu/ondemand/scipy-notebook"
       command: "/usr/local/bin/start.sh /opt/conda/bin/jupyter notebook --config=/ood/ondemand_config.py"
       working_dir: "<%= Etc.getpwnam(ENV['USER']).dir %>"
       restart_policy: 'OnFailure'
