@@ -13,7 +13,7 @@ script:
   native:
     container:
       name: "jupyter"
-      image: "docker-registry.osc.edu/ondemand/scipy-notebook"
+      image: "docker-registry.osc.edu/ondemand/scipy-notebook:python-3.9.2"
       command: "/usr/local/bin/start.sh /opt/conda/bin/jupyter notebook --config=/ood/ondemand_config.py"
       working_dir: "<%= Etc.getpwnam(ENV['USER']).dir %>"
       restart_policy: 'OnFailure'
