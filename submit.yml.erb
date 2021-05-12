@@ -34,6 +34,12 @@ script:
             c.NotebookApp.disable_check_xsrf = True
             c.NotebookApp.allow_origin = '*'
             c.Application.log_level = 'DEBUG'
+    mounts:
+      - type: host
+        name: home
+        host_type: Directory
+        path: <%= OodSupport::User.new.home %>
+        destination_path: <%= OodSupport::User.new.home %>
     init_containers:
     - name: "init-secret"
       image: "<%= utility_img %>"
