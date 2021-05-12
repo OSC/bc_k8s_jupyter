@@ -5,9 +5,6 @@
    configmap_filename = "ondemand_config.py"
    configmap_data = "c.NotebookApp.port = 8080"
    utility_img = "docker-registry.osc.edu/ondemand/ood-k8s-utils:2.6"
-
-   groups = OodSupport::Process.groups.map(&:name).reject { |group| /^P.+$/.match(group).nil? }
-   account = groups.first if account.nil? || account.eql?("")
 %>
 ---
 script:
