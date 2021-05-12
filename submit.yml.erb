@@ -34,6 +34,7 @@ script:
             c.NotebookApp.disable_check_xsrf = True
             c.NotebookApp.allow_origin = '*'
             c.Application.log_level = 'DEBUG'
+          mount_path: '/ood'
     mounts:
       - type: host
         name: home
