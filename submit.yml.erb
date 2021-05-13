@@ -4,10 +4,7 @@
 
    configmap_filename = "ondemand_config.py"
    configmap_data = "c.NotebookApp.port = 8080"
-   utility_img = "jeffohrstrom/ood-k8s-utils:2.6"
-
-   groups = OodSupport::Process.groups.map(&:name).reject { |group| /^P.+$/.match(group).nil? }
-   account = groups.first if account.nil? || account.eql?("")
+   utility_img = "docker-registry.osc.edu/ondemand/ood-k8s-utils:2.6"
 %>
 ---
 script:
@@ -16,30 +13,34 @@ script:
   native:
     container:
       name: "jupyter"
-      image: "jupyter/scipy-notebook"
+      image: "docker-registry.osc.edu/ondemand/scipy-notebook:python-3.9.2"
       command: "/usr/local/bin/start.sh /opt/conda/bin/jupyter notebook --config=/ood/ondemand_config.py"
       working_dir: "<%= Etc.getpwnam(ENV['USER']).dir %>"
       restart_policy: 'OnFailure'
       env:
-      - name: NB_UID
-        value: "<%= Etc.getpwnam(ENV['USER']).uid %>"
-      - name: NB_USER
-        value: "<%= ENV['USER'] %>"
-      - name: NB_GID
-        value: "<%= Etc.getpwnam(ENV['USER']).gid %>"
-      - name: HOME
-        value: "<%= Etc.getpwnam(ENV['USER']).dir %>"
+        NB_UID: "<%= Etc.getpwnam(ENV['USER']).uid %>"
+        NB_USER: "<%= ENV['USER'] %>"
+        NB_GID: "<%= Etc.getpwnam(ENV['USER']).gid %>"
+        HOME: "<%= Etc.getpwnam(ENV['USER']).dir %>"
       port: "8080"
       cpu: "<%= cpu %>"
       memory: "<%= memory %>Gi"
     configmap:
-      filename: "<%= configmap_filename %>"
-      data: |
-        c.NotebookApp.port = 8080
-        c.NotebookApp.ip = '0.0.0.0'
-        c.NotebookApp.disable_check_xsrf = True
-        c.NotebookApp.allow_origin = '*'
-        c.Application.log_level = 'DEBUG'
+      files:
+        - filename: "<%= configmap_filename %>"
+          data: |
+            c.NotebookApp.port = 8080
+            c.NotebookApp.ip = '0.0.0.0'
+            c.NotebookApp.disable_check_xsrf = True
+            c.NotebookApp.allow_origin = '*'
+            c.Application.log_level = 'DEBUG'
+          mount_path: '/ood'
+    mounts:
+      - type: host
+        name: home
+        host_type: Directory
+        path: <%= OodSupport::User.new.home %>
+        destination_path: <%= OodSupport::User.new.home %>
     init_containers:
     - name: "init-secret"
       image: "<%= utility_img %>"
