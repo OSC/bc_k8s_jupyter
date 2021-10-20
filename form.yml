@@ -1,5 +1,8 @@
 ---
-cluster: "kubernetes"
+cluster:
+  - "kubernetes"
+  - "kubernetes-test"
+  - "kubernetes-dev"
 
 form:
   - account
