@@ -4,7 +4,9 @@
 
    configmap_filename = "ondemand_config.py"
    configmap_data = "c.NotebookApp.port = 8080"
-   utility_img = "docker-registry.osc.edu/ondemand/ood-k8s-utils:2.6"
+   utility_img = "docker-registry.osc.edu/ondemand/ood-k8s-utils:v1.0.0"
+
+   user = OodSupport::User.new
 %>
 ---
 script:
@@ -18,10 +20,10 @@ script:
       working_dir: "<%= Etc.getpwnam(ENV['USER']).dir %>"
       restart_policy: 'OnFailure'
       env:
-        NB_UID: "<%= Etc.getpwnam(ENV['USER']).uid %>"
-        NB_USER: "<%= ENV['USER'] %>"
-        NB_GID: "<%= Etc.getpwnam(ENV['USER']).gid %>"
-        HOME: "<%= Etc.getpwnam(ENV['USER']).dir %>"
+        NB_UID: "<%= user.uid %>"
+        NB_USER: "<%= user.name %>"
+        NB_GID: "<%= user.group.id %>"
+        HOME: "<%= user.home %>"
       port: "8080"
       cpu: "<%= cpu %>"
       memory: "<%= memory %>Gi"
@@ -39,14 +41,14 @@ script:
       - type: host
         name: home
         host_type: Directory
-        path: <%= OodSupport::User.new.home %>
-        destination_path: <%= OodSupport::User.new.home %>
+        path: <%= user.home %>
+        destination_path: <%= user.home %>
     init_containers:
     - name: "init-secret"
       image: "<%= utility_img %>"
       command: 
       - "/bin/save_passwd_as_secret"
-      - "user-<%= ENV['USER'] %>"
+      - "user-<%= user.name %>"
     - name: "add-passwd-to-cfg"
       image: "<%= utility_img %>"
       command:
